@@ -1,50 +1,75 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Observables
 
-Currently, two official plugins are available:
+Uma pequena explicação de como funcionam os Observables neste caso de uso especifico.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Estrutura do projeto
 
-## Expanding the ESLint configuration
+Este é um projeto básico que possui uma tela de login, uma de cadastrar usuário, e uma main, cujo na qual eu iria após fazer login/cadastrar usuários. Estou fazendo minhas consultas usando a biblioteca Tanstack Query
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Declaração das queryKeys
 
-- Configure the top-level `parserOptions` property like this:
+ - Criação das keys para ser usadas como referência
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```typescript
+const ACCOUNT_REF_QUERY_KEY = (userUid: string | undefined) => ['ACCOUNT_REF_KEY', userUid]
+
+const ACCOUNT_REF_SUBSCRIPTION_QUERY_KEY = (userUid: string | undefined) => ['ACCOUNT_SUBSCRIPTION_KEY', userUid]
+
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+#### o que são queryKeys, e por que existem?
+- Uma chave única para a query
+- A chave exclusiva fornecida é usada internamente para buscar novamente, armazenar em cache e compartilhar suas consultas em todo o aplicativo.
+ - Criado dessa forma para garantir que cada key seja única e fácil de identificar 
+ - Passar o userUid nesse caso garante que os dados sejam específicos para cada usuário.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```typescript
+  export function useAccountQuery(userUid: string | undefined) {
 ```
+  - O QueryClient pode ser usado para interagir com o cache atual.
+
+```typescript
+    const queryClient = useQueryClient();
+```
+```typescript
+
+    const accountRef = doc(db, "accounts",  z.string().optional().default('undefined').parse(userUid)).withConverter({
+        toFirestore: (account: Account) => account,
+        fromFirestore: (snap) => accountSchema.parse(snap.data())
+    });
+
+    const result = useQuery({
+        queryKey: ACCOUNT_REF_QUERY_KEY(userUid),
+        queryFn: async() => {
+            const accountSnap = await getDoc(accountRef);
+            return accountSnap.data()
+        },
+        enabled: !!userUid
+    })
+
+    useQuery({
+        queryKey: ACCOUNT_REF_SUBSCRIPTION_QUERY_KEY(userUid),
+        queryFn: async() => {
+           queryClient.getQueryData<() => void>(ACCOUNT_REF_SUBSCRIPTION_QUERY_KEY(userUid))?.()
+            const unsubscribe = onSnapshot(accountRef, (accountSnap) => {
+                const currentDoc = accountSnap.data()
+                queryClient.setQueryData(ACCOUNT_REF_QUERY_KEY(userUid), currentDoc)
+            })
+            return () => {
+                unsubscribe()
+            }
+        },
+        enabled: !!userUid
+    })
+   
+    return { result };
+}
+```
+
+## Referência
+
+ - [Awesome Readme Templates](https://awesomeopensource.com/project/elangosundar/awesome-README-templates)
+ - [Awesome README](https://github.com/matiassingers/awesome-readme)
+ - [How to write a Good readme](https://bulldogjob.com/news/449-how-to-write-a-good-readme-for-your-github-project)
+
