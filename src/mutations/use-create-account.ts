@@ -1,6 +1,7 @@
-import { auth } from "@/utils/firebase";
+import { auth, db } from "@/utils/firebase";
 import { useMutation } from "@tanstack/react-query";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
 interface MutationAction {
     onSuccess: () => void
@@ -13,8 +14,17 @@ export interface CreateAccountActions {
 
 export function useCreateAccountEmailMutation({onSuccess, onError}: MutationAction) {
     return useMutation({
-        mutationFn: ({email, password}: CreateAccountActions) => {
-            return createUserWithEmailAndPassword(auth, email, password);
+        mutationFn: async({email, password}: CreateAccountActions) => {
+            await createUserWithEmailAndPassword(auth, email, password).then(() => {
+                const user = auth.currentUser
+                setDoc(doc(db, 'users', user?.uid), {
+                    name: user?.displayName,
+                    email: user?.email,
+                    idade: 19
+                })
+            }).catch((error) => {
+                console.log(error)
+            })
         },
         onSuccess,
         onError
