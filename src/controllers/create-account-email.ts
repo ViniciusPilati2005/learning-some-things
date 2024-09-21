@@ -9,11 +9,12 @@ export function useCreateAccountEmailController () {
     const { mutate: createAccount } = useCreateAccountEmailMutation({
         onSuccess: () => {
           toast({
-              variant: "default",
-              title: "Sucesso",
-              description: "Conta criada com sucesso",
-            });
-            navigate({to: '/'})
+            duration: 2000,
+            variant: "default",
+            title: "Sucesso",
+            description: "Conta criada com sucesso",
+          });
+            navigate({to: '/dashboard'})
       },
       onError: () => {
           toast({

@@ -1,124 +1,109 @@
-import { createFileRoute } from "@tanstack/react-router";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Label } from "@/components/ui/label";
+import { useSignInEmailPasswordController } from "@/controllers/signIn-email-password";
 import { z } from "@/utils/pt-br-zod";
-import { Field, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
+import { LogInIcon } from "lucide-react";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { Field } from "@/components/ui/field";
 import { ButtonSubmit } from "@/components/custom/button-submit";
-import { Loader2, Mail } from "lucide-react";
-import { useCreateAccountEmailController } from "@/controllers/create-account-email";
 
 export const Route = createFileRoute("/")({
-  component: CreateAccount,
+  component: LoginPage,
 });
 
-const createAccountSchemma = z
-  .object({
-    email: z.string(),
-    password: z.string().min(8),
-    confirmPassword: z.string().min(8),
-  })
-  .refine(({ password, confirmPassword }) => password === confirmPassword, {
-    message: "As senhas não coincidem",
-    path: ["confirmPassword"],
-  });
-
-const initialValues = {
-  email: "",
-  password: "",
-  confirmPassword: "",
-};
+const User = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
 
 function useLogic() {
-  const { createAccount } = useCreateAccountEmailController();
+  const { signInWithEmailPassword } = useSignInEmailPasswordController();
+
+  const initialValues = {
+    email: "",
+    password: "",
+  };
 
   return {
-    createAccount,
+    signInWithEmailPassword,
+    initialValues,
   };
 }
 
-export function CreateAccount() {
-  const { createAccount } = useLogic();
+export function LoginPage() {
+  const { signInWithEmailPassword, initialValues } = useLogic();
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={toFormikValidationSchema(createAccountSchemma)}
-      onSubmit={createAccount}
-    >
-      <Form>
-        <div className="w-full h-[100vh] flex justify-center items-center bg-gray-200">
-          <Card className="w-full max-w-sm border border-gray-300">
-            <CardHeader>
-              <CardTitle className="text-2xl">Criar conta</CardTitle>
-              <CardDescription>
-                Crie sua conta digitando um email e senha.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+    <div className="flex items-center justify-center w-full h-[100vh]">
+      <div className="flex items-center justify-center max-h-72 select-none">
+        <div className="flex flex-col justify-center border rounded-lg w-full min-w-96 max-w-md p-6 bg-white">
+          <div className="flex items-start justify-center space-x-2">
+            <LogInIcon className="w-8 h-8 text-blue-600" />
+          </div>
+          <h2 className="text-3xl font-semibold text-center text-gray-900">
+            Faça seu login.
+          </h2>
+          <Formik
+            validationSchema={toFormikValidationSchema(User)}
+            initialValues={initialValues}
+            onSubmit={signInWithEmailPassword}
+          >
+            <Form className="space-y-4">
+              <div>
+                <Label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Email
+                </Label>
                 <Field
-                  id="email"
                   name="email"
+                  id="email"
                   type="email"
-                  placeholder="m@example.com"
-                  required
+                  placeholder="user@email.com"
+                  className="w-full mt-1"
                 />
-                <div className="flex">
+                <p className="flex">
                   &nbsp;
                   <ErrorMessage name="email" />
-                </div>
+                </p>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Senha</Label>
+              <div>
+                <Label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Senha
+                </Label>
                 <Field
-                  id="password"
                   name="password"
+                  id="password"
                   type="password"
-                  placeholder="********"
-                  required
+                  placeholder="******"
+                  className="w-full mt-1"
                 />
-                <div className="flex">
+                <p className="flex">
                   &nbsp;
                   <ErrorMessage name="password" />
-                </div>
+                </p>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Confirmar Senha</Label>
-                <Field
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="confirmPassword"
-                  placeholder="********"
-                  required
-                />
-                <div className="flex">
-                  &nbsp;
-                  <ErrorMessage name="confirmPassword" />
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
               <ButtonSubmit
-                textButton="Enviar Email"
-                className="w-full flex gap-2"
+                textButton="Continuar"
                 type="submit"
-                icon={<Mail />}
-                iconLoading={<Loader2 className="animate-spin" />}
+                className="w-full bg-blue-600 text-white"
               />
-            </CardFooter>
-          </Card>
+            </Form>
+          </Formik>
+          <div className="text-center text-gray-600 flex gap-1">
+            Não possui uma conta?
+            <Link to="/create-account" className="text-blue-600">
+              Clique aqui para cadastrar
+            </Link>
+          </div>
         </div>
-      </Form>
-    </Formik>
+      </div>
+    </div>
   );
 }
