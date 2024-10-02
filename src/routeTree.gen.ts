@@ -11,11 +11,17 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as RegisterImport } from './routes/register'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as CreateAccountImport } from './routes/create-account'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const RegisterRoute = RegisterImport.update({
+  path: '/register',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const DashboardRoute = DashboardImport.update({
   path: '/dashboard',
@@ -57,6 +63,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardImport
       parentRoute: typeof rootRoute
     }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -66,12 +79,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/create-account': typeof CreateAccountRoute
   '/dashboard': typeof DashboardRoute
+  '/register': typeof RegisterRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/create-account': typeof CreateAccountRoute
   '/dashboard': typeof DashboardRoute
+  '/register': typeof RegisterRoute
 }
 
 export interface FileRoutesById {
@@ -79,14 +94,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/create-account': typeof CreateAccountRoute
   '/dashboard': typeof DashboardRoute
+  '/register': typeof RegisterRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/create-account' | '/dashboard'
+  fullPaths: '/' | '/create-account' | '/dashboard' | '/register'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/create-account' | '/dashboard'
-  id: '__root__' | '/' | '/create-account' | '/dashboard'
+  to: '/' | '/create-account' | '/dashboard' | '/register'
+  id: '__root__' | '/' | '/create-account' | '/dashboard' | '/register'
   fileRoutesById: FileRoutesById
 }
 
@@ -94,12 +110,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateAccountRoute: typeof CreateAccountRoute
   DashboardRoute: typeof DashboardRoute
+  RegisterRoute: typeof RegisterRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateAccountRoute: CreateAccountRoute,
   DashboardRoute: DashboardRoute,
+  RegisterRoute: RegisterRoute,
 }
 
 export const routeTree = rootRoute
@@ -116,7 +134,8 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/create-account",
-        "/dashboard"
+        "/dashboard",
+        "/register"
       ]
     },
     "/": {
@@ -127,6 +146,9 @@ export const routeTree = rootRoute
     },
     "/dashboard": {
       "filePath": "dashboard.tsx"
+    },
+    "/register": {
+      "filePath": "register.tsx"
     }
   }
 }
