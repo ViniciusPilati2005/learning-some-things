@@ -1,18 +1,17 @@
-import { ErrorMessage } from "@/components/ui/error-message";
-import { Label } from "@radix-ui/react-label";
-import { createFileRoute } from "@tanstack/react-router";
-import { Field, Form, Formik } from "formik";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import { z } from "@/utils/pt-br-zod";
 import { ButtonSubmit } from "@/components/custom/button-submit";
+import { InputForm } from "@/components/custom/input-form";
+import { z } from "@/utils/pt-br-zod";
+import { createFileRoute } from "@tanstack/react-router";
+import { Form, Formik } from "formik";
 import { Loader2, SendHorizontal } from "lucide-react";
+import { toFormikValidationSchema } from "zod-formik-adapter";
 
 export const Route = createFileRoute("/register")({
   component: RegisterInfoUser,
 });
 
 const registerSchema = z.object({
-  name: z.string(),
+  name: z.string().min(5),
   age: z.number().min(18),
   city: z.string(),
 });
@@ -32,37 +31,32 @@ export function RegisterInfoUser() {
     >
       <Form>
         <div className="w-full h-[100vh] flex flex-col justify-center items-center bg-gray-200">
-          <div className="grid gap-2 w-96">
-            <Label htmlFor="name">Your name</Label>
-            <Field
-              id="name"
-              name="name"
-              type="name"
-              placeholder="ex: João Raimundo"
-              required
-            />
-            <div className="flex">
-              &nbsp;
-              <ErrorMessage name="name" />
-            </div>
-          </div>
+          <InputForm
+            id="name"
+            name="name"
+            placeholder="ex: João Raimundo"
+            textLabel="Your name"
+            label="name"
+          />
 
-          <div className="grid gap-2 w-96">
-            <Label htmlFor="age">Your age</Label>
-            <Field
-              id="age"
-              name="age"
-              type="age"
-              placeholder="Ex: 25"
-              required
-            />
-            <div className="flex">
-              &nbsp;
-              <ErrorMessage name="age" />
-            </div>
-          </div>
+          <InputForm
+            id="age"
+            name="age"
+            placeholder="ex: 25"
+            textLabel="Your age"
+            label="age"
+          />
+
+          <InputForm
+            id="city"
+            name="city"
+            placeholder="ex: Dois vizinhos"
+            textLabel="Your city"
+            label="city"
+          />
+
           <ButtonSubmit
-            textButton="Enviar Formulário"
+            textButton="Send Form"
             className="w-80 flex gap-2"
             type="submit"
             icon={<SendHorizontal />}
