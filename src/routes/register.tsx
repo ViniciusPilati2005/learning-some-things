@@ -10,12 +10,29 @@ export const Route = createFileRoute("/register")({
   component: RegisterInfoUser,
 });
 
-const registerSchema = z.object({
-  name: z.string().min(5),
-  age: z.preprocess((value) => Number(value), z.number().min(18)),
-  city: z.string(),
-  gender: z.enum(["m", "w"]),
-});
+const registerSchema = z
+  .object({
+    name: z.string().min(5),
+    age: z.preprocess((value) => Number(value), z.number().min(18)),
+    city: z.string(),
+    gender: z.enum(["m", "w"]),
+    height: z.number().optional(),
+    menstrualPeriod: z.string().optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.gender === "w" && !value.menstrualPeriod) {
+      ctx.addIssue({
+        path: ["menstrualPeriod"],
+        message: "Precisa adicionar a data do seu periodo menstrual",
+        code: "custom",
+      });
+      ctx.addIssue({
+        path: ["height"],
+        message: "Precisa informar sua altura",
+        code: "custom",
+      });
+    }
+  });
 
 const initialValues = {
   name: "",
@@ -52,6 +69,15 @@ export function RegisterInfoUser() {
           />
 
           <InputForm
+            id="height"
+            name="height"
+            placeholder="Optional"
+            textLabel="Your height"
+            label="height"
+            type="default"
+          />
+
+          <InputForm
             id="city"
             name="city"
             placeholder="ex: Dois vizinhos"
@@ -70,9 +96,17 @@ export function RegisterInfoUser() {
             lastOptionTab="Woman"
           />
 
+          <InputForm
+            id="menstrualPeriod"
+            name="menstrualPeriod"
+            label="menstrualPeriod"
+            textLabel="Periodo Menstrual"
+            type="default"
+          />
+
           <ButtonSubmit
             textButton="Send Form"
-            className="w-80 flex gap-2"
+            className="w-80 flex gap-2 mt-5"
             type="submit"
             icon={<SendHorizontal />}
             iconLoading={<Loader2 className="animate-spin" />}
@@ -82,12 +116,3 @@ export function RegisterInfoUser() {
     </Formik>
   );
 }
-
-// cadastrar informações
-// formulário condicional, se coloca campo x, aparece n campos
-// se coloca campo y, aparece outros n campos
-// muda validaçã odependendo do campo
-// usar formik, campos opcionais
-// pegar valor e decide se muda/valida o campo
-// ver sobre superRefine que valida mais de um campo por vez
-// conforme as opções, muda o que pede
