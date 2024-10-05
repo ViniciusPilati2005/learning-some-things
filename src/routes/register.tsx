@@ -12,21 +12,23 @@ export const Route = createFileRoute("/register")({
 
 const registerSchema = z.object({
   name: z.string().min(5),
-  age: z.number().min(18),
+  age: z.preprocess((value) => Number(value), z.number().min(18)),
   city: z.string(),
+  gender: z.enum(["m", "w"]),
 });
 
 const initialValues = {
   name: "",
   age: "",
   city: "",
+  gender: "",
 };
 
 export function RegisterInfoUser() {
   return (
     <Formik
       initialValues={initialValues}
-      onSubmit={() => {}}
+      onSubmit={(values) => console.log(values)}
       validationSchema={toFormikValidationSchema(registerSchema)}
     >
       <Form>
@@ -37,6 +39,7 @@ export function RegisterInfoUser() {
             placeholder="ex: João Raimundo"
             textLabel="Your name"
             label="name"
+            type="default"
           />
 
           <InputForm
@@ -45,6 +48,7 @@ export function RegisterInfoUser() {
             placeholder="ex: 25"
             textLabel="Your age"
             label="age"
+            type="default"
           />
 
           <InputForm
@@ -53,6 +57,17 @@ export function RegisterInfoUser() {
             placeholder="ex: Dois vizinhos"
             textLabel="Your city"
             label="city"
+            type="default"
+          />
+
+          <InputForm
+            id="gender"
+            name="gender"
+            label="gender"
+            type="tab"
+            titleTab="Your gender:"
+            firstOptionTab="Man"
+            lastOptionTab="Woman"
           />
 
           <ButtonSubmit
