@@ -2,8 +2,9 @@ import { Label } from "@radix-ui/react-label";
 import { Field, useFormikContext } from "formik";
 import { ErrorMessage } from "../ui/error-message";
 import { Input } from "@/components/ui/input";
-import { When } from "react-if";
+import { If, Then, When } from "react-if";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface InputProps {
   name: string;
@@ -11,10 +12,12 @@ interface InputProps {
   label: string;
   placeholder?: string;
   textLabel?: string;
-  type: "default" | "tab";
+  type: "default" | "tab" | "checkbox";
   titleTab?: string;
   firstOptionTab?: string;
   lastOptionTab?: string;
+  textCheckbox?: string;
+  secondTextCheckbox?: string;
 }
 
 export function InputForm({
@@ -27,8 +30,14 @@ export function InputForm({
   titleTab,
   firstOptionTab,
   lastOptionTab,
+  textCheckbox,
+  secondTextCheckbox,
 }: InputProps) {
-  const { setFieldValue } = useFormikContext();
+  const { setFieldValue, errors, values } = useFormikContext();
+
+  console.log(errors);
+
+  console.log(values);
   return (
     <>
       <When condition={type === "default"}>
@@ -64,6 +73,40 @@ export function InputForm({
           </TabsList>
         </Tabs>
         <ErrorMessage name={name} />
+      </When>
+
+      <When condition={type === "checkbox"}>
+        <div className="flex flex-col gap-3 mt-3">
+          {textLabel}
+          <div className="flex items-center space-x-2">
+            <Field
+              as={Checkbox}
+              id={id}
+              name={name}
+            />
+            <label
+              htmlFor={label}
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              {textCheckbox}
+            </label>
+          </div>
+
+          <If condition={secondTextCheckbox}>
+            <Then>
+              <div className="flex items-center space-x-2">
+                <Checkbox id={id} />
+                <label
+                  htmlFor={label}
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {secondTextCheckbox}
+                </label>
+              </div>
+              <ErrorMessage name={name} />
+            </Then>
+          </If>
+        </div>
       </When>
     </>
   );

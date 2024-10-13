@@ -16,19 +16,13 @@ const registerSchema = z
     age: z.preprocess((value) => Number(value), z.number().min(18)),
     city: z.string(),
     gender: z.enum(["m", "w"]),
-    height: z.number().optional(),
-    menstrualPeriod: z.string().optional(),
+    menstrualCicle: z.enum(["regulated", "unregulated"]),
   })
   .superRefine((value, ctx) => {
-    if (value.gender === "w" && !value.menstrualPeriod) {
+    if (value.gender === "w" && !value.menstrualCicle) {
       ctx.addIssue({
-        path: ["menstrualPeriod"],
-        message: "Precisa adicionar a data do seu periodo menstrual",
-        code: "custom",
-      });
-      ctx.addIssue({
-        path: ["height"],
-        message: "Precisa informar sua altura",
+        path: ["menstrualCicle"],
+        message: "Precisa adicionar a informação sobre seu ciclo menstrual!",
         code: "custom",
       });
     }
@@ -39,6 +33,7 @@ const initialValues = {
   age: "",
   city: "",
   gender: "",
+  menstrualCicle: "",
 };
 
 export function RegisterInfoUser() {
@@ -48,71 +43,68 @@ export function RegisterInfoUser() {
       onSubmit={(values) => console.log(values)}
       validationSchema={toFormikValidationSchema(registerSchema)}
     >
-      <Form>
-        <div className="w-full h-[100vh] flex flex-col justify-center items-center bg-gray-200">
-          <InputForm
-            id="name"
-            name="name"
-            placeholder="ex: João Raimundo"
-            textLabel="Your name"
-            label="name"
-            type="default"
-          />
+      {({ values }) => (
+        <Form>
+          <div className="w-full h-[100vh] flex flex-col justify-center items-center bg-gray-200">
+            <InputForm
+              id="name"
+              name="name"
+              placeholder="ex: João Raimundo"
+              textLabel="Your name"
+              label="name"
+              type="default"
+            />
 
-          <InputForm
-            id="age"
-            name="age"
-            placeholder="ex: 25"
-            textLabel="Your age"
-            label="age"
-            type="default"
-          />
+            <InputForm
+              id="age"
+              name="age"
+              placeholder="ex: 25"
+              textLabel="Your age"
+              label="age"
+              type="default"
+            />
 
-          <InputForm
-            id="height"
-            name="height"
-            placeholder="Optional"
-            textLabel="Your height"
-            label="height"
-            type="default"
-          />
+            <InputForm
+              id="city"
+              name="city"
+              placeholder="ex: Dois vizinhos"
+              textLabel="Your city"
+              label="city"
+              type="default"
+            />
 
-          <InputForm
-            id="city"
-            name="city"
-            placeholder="ex: Dois vizinhos"
-            textLabel="Your city"
-            label="city"
-            type="default"
-          />
+            <InputForm
+              id="gender"
+              name="gender"
+              label="gender"
+              type="tab"
+              titleTab="Your gender:"
+              firstOptionTab="Man"
+              lastOptionTab="Woman"
+            />
 
-          <InputForm
-            id="gender"
-            name="gender"
-            label="gender"
-            type="tab"
-            titleTab="Your gender:"
-            firstOptionTab="Man"
-            lastOptionTab="Woman"
-          />
+            {values.gender === "w" && (
+              <InputForm
+                id="menstrualCicle"
+                name="menstrualCicle"
+                label="menstrualCicle"
+                textLabel="What is your menstrual cycle like?"
+                type="checkbox"
+                textCheckbox="Regulated"
+                secondTextCheckbox="Unregulated"
+              />
+            )}
 
-          <InputForm
-            id="menstrualPeriod"
-            name="menstrualPeriod"
-            label="menstrualPeriod"
-            textLabel="Periodo Menstrual"
-            type="default"
-          />
-
-          <ButtonSubmit
-            textButton="Send Form"
-            className="w-80 flex gap-2 mt-5"
-            type="submit"
-            icon={<SendHorizontal />}
-            iconLoading={<Loader2 className="animate-spin" />}
-          />
-        </div>
-      </Form>
+            <ButtonSubmit
+              textButton="Send Form"
+              className="w-80 flex gap-2 mt-5"
+              type="submit"
+              icon={<SendHorizontal />}
+              iconLoading={<Loader2 className="animate-spin" />}
+            />
+          </div>
+        </Form>
+      )}
     </Formik>
   );
 }
