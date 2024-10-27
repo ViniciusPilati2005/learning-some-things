@@ -16,7 +16,10 @@ export const Route = createFileRoute("/register")({
 const registerSchema = z
   .object({
     name: z.string().min(5),
-    age: z.preprocess((value) => Number(value), z.number().min(18)),
+    age: z.preprocess(
+      (value) => Number(value),
+      z.number({ message: "Digite um número valido" }).min(18)
+    ),
     city: z.string(),
     gender: z.enum(["m", "w"]),
     menstrualCicle: z.enum(["regulated", "unregulated"]),
