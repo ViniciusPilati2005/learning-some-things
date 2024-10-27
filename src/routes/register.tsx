@@ -1,5 +1,8 @@
 import { ButtonSubmit } from "@/components/custom/button-submit";
-import { InputForm } from "@/components/custom/input-form";
+import { CheckboxInput } from "@/components/custom/checkbox-input";
+import { TabInput } from "@/components/custom/tab-input";
+import { TextInput } from "@/components/custom/text-input";
+import { menstrualClicleType } from "@/constants/type-menstrual-cicle";
 import { z } from "@/utils/pt-br-zod";
 import { createFileRoute } from "@tanstack/react-router";
 import { Form, Formik } from "formik";
@@ -46,52 +49,42 @@ export function RegisterInfoUser() {
       {({ values }) => (
         <Form>
           <div className="w-full h-[100vh] flex flex-col justify-center items-center bg-gray-200">
-            <InputForm
+            <TextInput
               id="name"
               name="name"
               placeholder="ex: João Raimundo"
               textLabel="Your name"
               label="name"
-              type="default"
             />
 
-            <InputForm
+            <TextInput
               id="age"
               name="age"
               placeholder="ex: 25"
               textLabel="Your age"
               label="age"
-              type="default"
             />
 
-            <InputForm
+            <TextInput
               id="city"
               name="city"
               placeholder="ex: Dois vizinhos"
               textLabel="Your city"
               label="city"
-              type="default"
             />
 
-            <InputForm
-              id="gender"
+            <TabInput
               name="gender"
-              label="gender"
-              type="tab"
               titleTab="Your gender:"
               firstOptionTab="Man"
               lastOptionTab="Woman"
             />
 
             {values.gender === "w" && (
-              <InputForm
+              <CheckboxInput
                 id="menstrualCicle"
                 name="menstrualCicle"
-                label="menstrualCicle"
-                textLabel="What is your menstrual cycle like?"
-                type="checkbox"
-                textCheckbox="Regulated"
-                secondTextCheckbox="Unregulated"
+                checkboxValues={menstrualClicleType}
               />
             )}
 
